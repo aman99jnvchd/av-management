@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Data By Phone No.</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Hidden checkbox for sidebar toggle -->
+    <input type="checkbox" id="sidebar-toggle">
+    
+    <!-- Sidebar Toggle Button -->
+    <label for="sidebar-toggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </label>
+
+    <!-- Sidebar -->
+    <aside class="sidebar loading" id="sidebar">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+       
+        <!-- Get Data Section -->
+        <div class="page-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin" style="text-decoration: none; color: var(--text-light);">Home</a></li>
+                    <li class="breadcrumb-item">CIBIL</li>
+                    <li class="breadcrumb-item active">Get Data By Phone No.</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Get Data By Phone No.</h1>
+        </div>
+
+        <!-- Success alertbox -->
+        <div class="alert alert-success" id="onSuccess" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+        <!-- Error alertbox -->
+        <div class="alert alert-danger" id="onError" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+        <div class="get-data-container">
+            <div class="form-header">
+                <i class="bi bi-database-fill"></i>
+                <h3 class="form-title">Get Data By Phone No.</h3>
+            </div>
+            
+            <form>
+                <div class="form-body">
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
+                                <input type="text" id="firstName" class="form-control" placeholder="Enter first name" required>
+                                <div id="firstNameErr" class="form-error" style="display: none;"></div>
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label for="middleName" class="form-label">Middle Name</label>
+                                <input type="text" id="middleName" class="form-control" placeholder="Enter middle name">
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" id="lastName" class="form-control" placeholder="Enter last name">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="phoneNo" class="form-label">Phone No. <span class="required">*</span></label>
+                                <input type="tel" id="phoneNo" class="form-control" placeholder="Enter phone number" required>
+                                <div id="phoneNoErr" class="form-error" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="form-info">
+                        Fields marked with <span class="required">*</span> are required. Need help? Check our <a href="#">Data Retrieval Guide</a>
+                    </div>
+                    <div class="action-buttons">
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="getDataBtn"
+                            onclick="sendRequest(event)"
+                        >
+                            <i class="bi bi-search"></i>
+                            Get Data
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="get-data-container get-data" id="result" style="display: none;">
+            <div class="reports-table-container">
+                <table class="reports-table">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
+    <script>
+        const successAlertElement = document.getElementById("onSuccess");
+        const errorAlertElement = document.getElementById("onError");
+        const resultDiv = document.getElementById('result');
+
+
+        async function sendRequest(e) {
+            e.preventDefault();
+
+            successAlertElement.style.display = "none";
+            errorAlertElement.style.display = "none";
+
+            resultDiv.querySelector('tbody').innerHTML = "";
+            resultDiv.style.display = 'none';
+
+            // List of required fields
+            const requiredFields = [
+                { id: "firstName", err: "firstNameErr", msg: "First Name is required" },
+                { id: "phoneNo", err: "phoneNoErr", msg: "Phone No. is required" },
+            ];
+
+            // Validate all fields
+            if (!validateRequiredFields(requiredFields)) {
+                return;
+            }
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const middleName = document.getElementById('middleName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const phoneNo = document.getElementById('phoneNo').value.trim();
+
+            setLoading(true);
+
+            try {
+                const result = await getDataPrefill({
+                    "first_name": firstName,
+                    "mobile": phoneNo,
+                    "last_name": middleName,
+                    "middle_name": lastName
+                });
+
+                console.log(result);
+                if (result == "API failed") {
+                    // show Error alertbox
+                    showAlert(errorAlertElement, "Something went wrong. Please Try again.")
+
+                    setLoading(false);
+                    throw new Error(result);
+                }
+
+                const { status, data, message } = result;
+
+                if (status === 200 && data) {
+                    let html = '';
+
+                    for (const [key, value] of Object.entries(data)) {
+                        const label = key.replace(/_/g, " ");
+                        
+                        html += '<tr>';
+                        html += '<td>' + label + '</td>';
+                        html += '<td>' + renderValue(key, value) + '</td>';
+                        html += '</tr>';
+                    }
+
+                    resultDiv.querySelector('tbody').innerHTML = html;
+                    resultDiv.style.display = 'block';
+                    resultDiv.scrollIntoView({ behavior: 'smooth' });
+
+                    // show Success alertbox
+                    var textElement = successAlertElement.querySelector("p");
+                    textElement.innerText = "Data Fetched Successfully";
+                    successAlertElement.style.display = "block";
+                } else {
+                    if (result.status === 603) window.location.href = '/login.html';
+                    
+                    console.error('GetData Error:', message);
+                    // show Error alertbox
+                    showAlert(errorAlertElement, message);
+                }
+            } catch (error) {
+                console.error('GetData Failed:', error);
+                // show Error alertbox
+                showAlert(errorAlertElement, "Something went wrong. Try again.");
+            }
+            
+            clearForm();
+            setLoading(false);
+        }
+
+        function renderValue(key, value) {
+            // PAN Number array case
+            if (Array.isArray(value) && key.toLowerCase().includes('pan_number')) {
+                return value.map((item, index) => {
+                    return `
+                        <div class="copy">
+                            <span class="pr-6">${item}</span>
+                            <span 
+                                class="cursor-pointer copy-icon" 
+                                data-text="${item}"
+                            >
+                                <i
+                                    class="bi bi-clipboard fs-5 copy-icon" 
+                                    data-text="${item}" 
+                                    title="Copy"
+                                ></i>
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Any other array
+            if (Array.isArray(value)) {
+                return value.join(' / ');
+            }
+
+            // Not array
+            return value;
+        }
+
+        // copy text
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('copy-icon')) {
+                const text = e.target.getAttribute('data-text');
+                navigator.clipboard.writeText(text);
+            }
+        });
+
+        // set loader on form submit
+        function setLoading(isLoading) {
+            const btn = document.getElementById('getDataBtn');
+
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Processing...
+                `;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <i class="bi bi-search"></i>
+                    Get Data
+                `;
+            }
+        }
+
+        // clear form
+        function clearForm() {
+            document.getElementById('firstName').value = "";
+            document.getElementById('middleName').value = "";
+            document.getElementById('lastName').value = "";
+            document.getElementById('phoneNo').value = "";
+        }
+        
+        // show alert box
+        function showAlert(alertBox, message) {
+            alertBox.querySelector("p").innerText = message;
+            alertBox.style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // validation
+        function validateRequiredFields(fields) {
+            let isValid = true;
+
+            fields.forEach(f => {
+                const input = document.getElementById(f.id);
+                const error = document.getElementById(f.err);
+                
+                if (!input.value.trim()) {
+                    error.innerHTML = `<span>${f.msg}</span>`;
+                    error.style.display = "block";
+                    isValid = false;
+                } else {
+                    error.style.display = "none";
+                }
+            });
+
+            return isValid;
+        }
+    </script>
+</body>
+</html>

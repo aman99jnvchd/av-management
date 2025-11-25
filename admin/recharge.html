@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recharge</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Hidden checkbox for sidebar toggle -->
+    <input type="checkbox" id="sidebar-toggle">
+    
+    <!-- Sidebar Toggle Button -->
+    <label for="sidebar-toggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </label>
+
+    <!-- Sidebar -->
+    <aside class="sidebar loading" id="sidebar">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin" style="text-decoration: none; color: var(--text-light);">Home</a></li>
+                    <li class="breadcrumb-item active">Recharge</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Recharge</h1>
+        </div>
+
+        <!-- Success alertbox -->
+        <div class="alert alert-success" id="onSuccess" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+        <!-- Error alertbox -->
+        <div class="alert alert-danger" id="onError" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+       <!-- Settings Section -->
+        <div class="settings-container">
+            <!-- Password Settings Card -->
+            <div class="settings-card">
+                <div class="settings-header">
+                    <i class="bi bi-cash"></i>
+                    <h3 class="settings-title">Recharge</h3>
+                </div>
+                <div class="settings-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="amount" class="form-label">Amount</label>
+                            <input type="number" name="amount" id="amount" required min="10" class="form-control" required>
+                            <div id="amountErr" class="form-error" style="display: none;"></div>
+                        </div>
+                        <button
+                            type="submit"
+                            class="btn-submit"
+                            id="chngePsswrd"
+                            onclick="sendRequest(event)"
+                        >
+                            <i class="bi bi-check-circle"></i>
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
+    <script>
+        const successAlertElement = document.getElementById("onSuccess");
+        const errorAlertElement = document.getElementById("onError");
+        const amountElement = document.getElementById('amount');
+        const amountErr = document.getElementById("amountErr");
+        
+        // const user_data = currentUserData();
+        // console.log(user_data);
+
+        async function sendRequest(e) {
+            e.preventDefault();
+
+            successAlertElement.style.display = "none";
+            errorAlertElement.style.display = "none";
+            amountErr.style.display = "none";
+
+            const amountVal = amountElement.value.trim();
+
+            if (!amountVal) {
+                amountErr.innerHTML = "<span>Amount is required</span>";
+                amountErr.style.display = "block";
+                return;
+            }
+            
+            if (amountVal < 10) {
+                amountErr.innerHTML = "<span>Amount must be greater than or equal to 10<span>";
+                amountErr.style.display = "block";
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const result = await rechargeAPI({
+                    "amount": amountVal,
+                });
+
+                console.log(result);
+                if (result == "API failed") {
+                    // show Error alertbox
+                    showAlert(errorAlertElement, "Something went wrong. Please Try again.")
+
+                    setLoading(false);
+                    throw new Error(result);
+                }
+
+                const { status, message } = result;
+
+                if (status === 200) {
+                    // show Success alertbox
+                    showAlert(successAlertElement, message)
+                } else {
+                    if (result.status === 603) window.location.href = '/login.html';
+                    
+                    console.error('Recharge Error:', message);
+                    // show Error alertbox
+                    showAlert(errorAlertElement, message);
+                }
+            } catch (error) {
+                console.error('Recharge Failed:', error);
+                // show Error alertbox
+                showAlert(errorAlertElement, "Something went wrong. Try again.");
+            }
+            
+            clearForm();
+            setLoading(false);
+        }
+
+        // set loader on form submit
+        function setLoading(isLoading) {
+            const btn = document.getElementById('chngePsswrd');
+
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Processing...
+                `;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <i class="bi bi-check-circle"></i>
+                    Submit
+                `;
+            }
+        }
+
+        // clear form
+        function clearForm() {
+            amountElement.value = "";
+        }
+
+        // show alert box
+        function showAlert(alertBox, message) {
+            alertBox.querySelector("p").innerText = message;
+            alertBox.style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AV Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="ls-page-wrapper">
+        <div class="ls-dual-container">
+            <!-- Left Column - Logo & Text Section -->
+            <div class="ls-visual-section">
+                <div class="ls-visual-bg-animation"></div>
+                <div class="ls-floating-elements">
+                    <div class="ls-floating-shape"></div>
+                    <div class="ls-floating-shape"></div>
+                    <div class="ls-floating-shape"></div>
+                </div>
+                <div class="ls-logo-wrapper">
+                    <div class="ls-company-logo">
+                       <img src="assets/img/logo.png" width="220" alt="">
+                    </div>
+                </div>
+                <div class="ls-brand-content">
+                    <!-- <h2 class="ls-brand-title">MANAGEMENT SOLUTION</h2> -->
+                    <p class="ls-brand-description">Streamline your business operations with our comprehensive legal and financial management platform. Trusted by thousands of professionals worldwide.</p>
+                    <ul class="ls-feature-list">
+                        <li class="ls-feature-item">
+                            <i class="bi bi-check-circle-fill ls-feature-icon"></i>
+                            Secure & Reliable
+                        </li>
+                        <li class="ls-feature-item">
+                            <i class="bi bi-check-circle-fill ls-feature-icon"></i>
+                            Easy to Use Interface
+                        </li>
+                        <li class="ls-feature-item">
+                            <i class="bi bi-check-circle-fill ls-feature-icon"></i>
+                            24/7 Customer Support
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column - Login Form Section -->
+            <div class="ls-content-section">
+                <div class="ls-form-header">
+                    <div class="ls-section-badge">
+                        <i class="bi bi-shield-check"></i>
+                        Secure Login
+                    </div>
+                    <h2 class="ls-section-title">Welcome Back</h2>
+                    <p class="ls-section-description">Enter your credentials to access your account</p>
+                </div>
+
+                <form class="ls-login-form" id="loginForm">
+                    <div class="ls-input-wrapper">
+                        <label for="email" class="ls-input-label">Enter Email</label>
+                        <div style="position: relative;">
+                            <input type="email" id="email" class="ls-input-field" placeholder="your@email.com" required>
+                            <i class="bi bi-envelope-fill ls-input-icon"></i>
+                        </div>
+                        <div id="emailErr" class="form-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="ls-input-wrapper">
+                        <label for="password" class="ls-input-label">Enter Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="password" class="ls-input-field" placeholder="Your password" required>
+                            <button type="button" class="ls-password-toggle" >
+                                <i class="bi bi-eye-fill" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <div id="passwordErr" class="form-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="ls-form-options">
+                        <a href="/forgot-password.html" class="ls-forgot-link">Forgot Password?</a>
+                    </div>
+                    
+                    <!-- Form error to show -->
+                    <div id="formError" style="display: none;">
+                    </div>
+
+                    <!-- Submit button -->
+                    <button type="submit" class="ls-submit-button" id="loginBtn">
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="ls-form-footer">
+                    Don't have an account? <a href="/register.html" class="ls-footer-link">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/api.js"></script>
+    <script>
+        // Check if 'accessToken' exists in localStorage and 'userData' exists in sessionStorage
+        const accessToken = localStorage.getItem('accessToken');
+        // const userData = sessionStorage.getItem('userData');
+        const userData = localStorage.getItem('userData');
+
+        // If both exists, redirect to dashboard page
+        if (accessToken && userData) {
+            window.location.href = '/admin';
+        }
+
+        const formError = document.getElementById("formError");
+        const emailElement = document.getElementById("email");
+        const passwordElement = document.getElementById("password");
+
+        // Login Functionality
+        document.getElementById("loginForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            formError.style.display = 'none';
+            
+            // List of required fields
+            const requiredFields = [
+                { id: "email", err: "emailErr", msg: "Email is required" },
+                { id: "password", err: "passwordErr", msg: "Password is required" },
+            ];
+
+            // Validate all fields
+            if (!validateRequiredFields(requiredFields)) {
+                return;
+            }
+
+            const email = emailElement.value.trim();
+            const password = passwordElement.value.trim();
+                        
+            if (!validateEmail(email)) {
+                formError.innerHTML = `<span>Please provide a valid Email.</span>`;
+                formError.style.display = 'flex';
+                return;
+            }
+            
+            setLoading(true);
+
+            try {
+                const result = await loginUser({ 
+                    "email": email,
+                    "password": password
+                });
+
+                console.log(result);
+                if (result == "API failed") {
+                    setLoading(false);
+                    throw new Error(result);
+                }
+
+                if (result.status !== 200 || !result.data) {
+                    formError.innerHTML = `<span>${result.message}</span>`;
+                    formError.style.display = 'flex';
+                    setLoading(false);
+                    return;
+                }
+
+                // Save tokens and session data
+                localStorage.setItem("accessToken", result.data.access_token);
+                // sessionStorage.setItem("userData", JSON.stringify(result.data));
+                localStorage.setItem("userData", JSON.stringify(result.data));
+
+                // Redirect to admin page
+                window.location.href = "admin/";
+            } catch (error) {
+                console.error("Login error:", error);
+                formError.innerHTML = `<span>Something went wrong. Please try again.</span>`;
+                formError.style.display = 'flex';
+            }
+
+            setLoading(false);
+        });
+
+        // Password Show/Hide Toggle
+        const toggleBtn = document.querySelector(".ls-password-toggle");
+        const passwordInput = document.getElementById("password");
+        const toggleIcon = document.getElementById("toggleIcon");
+
+        toggleBtn.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            toggleIcon.classList.toggle("bi-eye-fill");
+            toggleIcon.classList.toggle("bi-eye-slash-fill");
+        });
+
+        // set loader on form submit
+        function setLoading(isLoading) {
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (isLoading) {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Signing In...
+                `;
+            } else {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Sign In';
+            }
+        }
+
+        // Email validation
+        function validateEmail(email) {
+            const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return regex.test(email);
+        }
+
+        // validation
+        function validateRequiredFields(fields) {
+            let isValid = true;
+
+            fields.forEach(f => {
+                const input = document.getElementById(f.id);
+                const error = document.getElementById(f.err);
+                
+                if (!input.value.trim()) {
+                    error.innerHTML = `<span>${f.msg}</span>`;
+                    error.style.display = "block";
+                    isValid = false;
+                } else {
+                    error.style.display = "none";
+                }
+            });
+
+            return isValid;
+        }
+    </script>
+</body>
+</html>

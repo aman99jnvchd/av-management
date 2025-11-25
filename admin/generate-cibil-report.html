@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Credit Report</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Hidden checkbox for sidebar toggle -->
+    <input type="checkbox" id="sidebar-toggle">
+    
+    <!-- Sidebar Toggle Button -->
+    <label for="sidebar-toggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </label>
+
+    <!-- Sidebar -->
+    <aside class="sidebar loading" id="sidebar">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Get Data Section -->
+        <div class="page-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin" style="text-decoration: none; color: var(--text-light);">Home</a></li>
+                    <li class="breadcrumb-item">CIBIL</li>
+                    <li class="breadcrumb-item active">Generate Credit Report</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Generate Credit Report</h1>
+        </div>
+        
+        <!-- Success alertbox -->
+        <div class="alert alert-success" id="onSuccess" style="display: none;">
+            <p></p>
+            <a href="" class="btn btn-success" target="_blank"></a>
+        </div>
+        <!-- Error alertbox -->
+        <div class="alert alert-danger" id="onError" style="display: none;">
+            <p></p>
+        </div>
+
+        <div class="get-data-container">
+            <div class="form-header">
+                <i class="bi bi-database-fill"></i>
+                <h3 class="form-title">Generate Credit Report</h3>
+            </div>
+
+            <form>
+                <div class="form-body">
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="bi bi-person-lines-fill"></i>
+                            Personal Information
+                        </h4>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="firstName" class="form-label">Full Name <span class="required">*</span></label>
+                                <input type="text" id="fullName" class="form-control" placeholder="Enter full name" required>
+                                <div id="fullNameErr" class="form-error" style="display: none;"></div>
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label for="mobilenumber" class="form-label">Mobile Number (10-digit) <span class="required">*</span></label>
+                                <input type="number" id="mobile" class="form-control" placeholder="Enter mobile name" maxlength="10" required>
+                                <div id="mobileErr" class="form-error" style="display: none;"></div>
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label for="pannumber" class="form-label">PAN Number <span class="required">*</span></label>
+                                <input type="text" id="panNumber" class="form-control" placeholder="Enter PAN name" required>
+                                <div id="panNumberErr" class="form-error" style="display: none;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="gender" class="form-label">Gender <span class="required">*</span></label>
+                                <select id="gender" class="form-select" required>
+                                    <option value="" disabled selected>Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="others">Others</option>
+                                </select>
+                                <div id="genderErr" class="form-error" style="display: none;"></div>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label for="reporttype" class="form-label">Report Type <span class="required">*</span></label>
+                                <select id="reporttype" class="form-select" required>
+                                    <option value="" disabled selected>Select Report Type</option>
+                                    <option value="cibil">Cibil</option>
+                                    <option value="experian">Experian</option>
+                                    <option value="equifax">Equifax</option>
+                                    <option value="crif">Crif</option>
+                                </select>
+                                <div id="reporttypeErr" class="form-error" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="form-info">
+                        Fields marked with <span class="required">*</span> are required. Need help? Check our <a href="#">Data Retrieval Guide</a>
+                    </div>
+                    <div class="action-buttons">
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="genReportBtn"
+                            onclick="sendRequest(event)"
+                        >
+                            <i class="bi bi-search"></i>
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
+    <script>
+        var successAlertElement = document.getElementById("onSuccess");
+        var errorAlertElement = document.getElementById("onError");
+
+        async function sendRequest(e) {
+            e.preventDefault();
+
+            successAlertElement.style.display = "none";
+            errorAlertElement.style.display = "none";
+
+            // List of required fields
+            const requiredFields = [
+                { id: "fullName", err: "fullNameErr", msg: "Full Name is required" },
+                { id: "mobile", err: "mobileErr", msg: "Mobile Number is required" },
+                { id: "panNumber", err: "panNumberErr", msg: "PAN Number is required" },
+                { id: "gender", err: "genderErr", msg: "Gender is required" },
+                { id: "reporttype", err: "reporttypeErr", msg: "Report Type is required" },
+            ];
+
+            // Validate all fields
+            if (!validateRequiredFields(requiredFields)) {
+                return;
+            }
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const panNumber = document.getElementById('panNumber').value.trim();
+            const gender = document.getElementById('gender').value.trim();
+            const reporttype = document.getElementById('reporttype').value.trim();
+
+            setLoading(true);
+
+            try {
+                const result = await generateCreditReport({
+                    "name": fullName,
+                    "mobile": mobile,
+                    "document_id": panNumber,
+                    "gender": gender,
+                    "report_type": reporttype
+                });
+
+                console.log(result);
+                if (result == "API failed") {
+                    // show Error alertbox
+                    showAlert(errorAlertElement, "Something went wrong. Please Try again.")
+
+                    setLoading(false);
+                    throw new Error(result);
+                }
+                
+                const { status, data, message } = result;
+
+                if (status === 200 && data) {
+                    var link = successAlertElement.querySelector("a");
+                    link.href = data.report_url;
+                    link.innerText = "View Credit Report PDF";
+                    // show Error alertbox
+                    showAlert(successAlertElement, "Report Generated Successfully");
+                } else {
+                    if (result.status === 603) window.location.href = '/login.html';
+
+                    console.error('GenReport Error:', result);
+                    // show Error alertbox
+                    showAlert(errorAlertElement, message);
+                }
+            } catch (error) {
+                console.error('GenReport Request Failed:', error);
+                // show Error alertbox
+                showAlert(errorAlertElement, "Something went wrong. Try again.");
+            }
+            
+            clearForm();
+            setLoading(false);
+        }
+        
+        // set loader on form submit
+        function setLoading(isLoading) {
+            const btn = document.getElementById('genReportBtn');
+
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Processing...
+                `;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <i class="bi bi-search"></i>
+                    Generate Report
+                `;
+            }
+        }
+
+        // clear form
+        function clearForm() {
+            document.getElementById('fullName').value = "";
+            document.getElementById('mobile').value = "";
+            document.getElementById('panNumber').value = "";
+            document.getElementById('gender').value = "";
+            document.getElementById('reporttype').value = "";
+        }
+
+        // show alert box
+        function showAlert(alertBox, message) {
+            alertBox.querySelector("p").innerText = message;
+            alertBox.style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // validation
+        function validateRequiredFields(fields) {
+            let isValid = true;
+
+            fields.forEach(f => {
+                const input = document.getElementById(f.id);
+                const error = document.getElementById(f.err);
+                
+                if (!input.value.trim()) {
+                    error.innerHTML = `<span>${f.msg}</span>`;
+                    error.style.display = "block";
+                    isValid = false;
+                } else {
+                    error.style.display = "none";
+                }
+            });
+
+            return isValid;
+        }
+    </script>
+</body>
+</html>

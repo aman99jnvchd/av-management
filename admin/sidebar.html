@@ -1,0 +1,114 @@
+<div class="sidebar-header">
+    <div class="company-name">
+        <div class="company-logo">
+            <img src="../assets/img/logo.png" alt="AV Management" class="logo-img">
+        </div>
+    </div>
+    
+    <!-- Welcome Dropdown -->
+    <div class="welcome-dropdown">
+        <input type="checkbox" id="welcome-submenu-toggle">
+        <label for="welcome-submenu-toggle" class="welcome-box">
+            <div class="welcome-icon">
+                <i class="bi bi-person"></i>
+            </div>
+            <div class="welcome-text">Welcome, <span></span></div>
+            <i class="bi bi-chevron-down welcome-arrow"></i>
+        </label>
+        <div class="welcome-submenu">
+            <a href="manager.html" class="welcome-submenu-item">
+                <i class="bi bi-person-circle"></i>
+                My Profile
+            </a>
+            <button class="welcome-submenu-item" onclick="doLogout(event)">
+                <i class="bi bi-box-arrow-right"></i>
+                Logout
+            </button>
+        </div>
+    </div>
+</div>
+<nav>
+    <ul class="nav-menu">
+        <li>
+            <a href="/admin" class="nav-item active">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </a>
+        </li>
+        <li class="nav-dropdown">
+            <input type="checkbox" id="submenu-toggle">
+            <label for="submenu-toggle" class="nav-item" style="cursor: pointer;">
+                <i class="bi bi-person"></i>
+                Profile
+            </label>
+            <div class="submenu">
+                <a href="manager.html" class="submenu-item">Manage Profile</a>
+                <a href="change-password.html" class="submenu-item">Change Password</a>
+            </div>
+        </li>
+        <li>
+            <a href="emi.html" class="nav-item">
+                <i class="bi bi-calculator-fill"></i>
+                EMI Calculator
+            </a>
+        </li>
+        <li class="nav-dropdown">
+            <input type="checkbox" id="employee-submenu-toggle">
+            <label for="employee-submenu-toggle" class="nav-item" style="cursor: pointer;">
+                <i class="bi bi-people"></i>
+                Employees
+            </label>
+            <div class="submenu">
+                <a href="create-employee.html" class="submenu-item">Create Employee</a>
+                <a href="manage-employee.html" class="submenu-item">Manage Employees</a>
+            </div>
+        </li>
+        
+        <li class="nav-dropdown">
+            <input type="checkbox" id="cibil-submenu-toggle">
+            <label for="cibil-submenu-toggle" class="nav-item" style="cursor: pointer;">
+                <i class="bi bi-file-text"></i>
+                Cibil
+            </label>
+            <div class="submenu">
+                <a href="get-data.html" class="submenu-item">Get Data</a>
+                <a href="generate-cibil-report.html" class="submenu-item">Generate CIBIL Report</a>
+                <a href="generate-commerical-cibil-report.html" class="submenu-item">Generate Commercial CIBIL Report</a>
+                <a href="credit-report.html" class="submenu-item">CIBIL Report</a>
+                <a href="all-transactions.html" class="submenu-item">All Transactions</a>
+                <a href="admin-transactions.html" class="submenu-item">Admin Transactions</a>
+                <a href="add-transaction.html" class="submenu-item">Add Debit/Credit Transaction</a>
+            </div>
+        </li>
+        <li>
+            <a href="recharge.html" class="nav-item">
+                <i class="bi bi-cash"></i>
+                Recharge
+            </a>
+        </li>
+        <li>
+            <a href="faqs.html" class="nav-item">
+                <i class="bi bi-wallet2"></i>
+                Manage FAQs
+            </a>
+        </li>
+        <li>
+            <a href="settings.html" class="nav-item">
+                <i class="bi bi-gear"></i>
+                Settings
+            </a>
+        </li>
+        <li>
+            <a href="support.html" class="nav-item">
+                <i class="bi bi-headphones"></i>
+                Support
+            </a>
+        </li>
+        <li>
+            <button class="nav-item" onclick="doLogout(event)">
+                <i class="bi bi-box-arrow-right"></i>
+                Logout
+            </button>
+        </li>
+    </ul>
+</nav>

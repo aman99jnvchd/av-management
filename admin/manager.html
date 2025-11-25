@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Profile</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Hidden checkbox for sidebar toggle -->
+    <input type="checkbox" id="sidebar-toggle">
+    
+    <!-- Sidebar Toggle Button -->
+    <label for="sidebar-toggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </label>
+
+    <!-- Sidebar -->
+    <aside class="sidebar loading" id="sidebar">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- EMI Calculator Section -->
+        <div class="page-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin" style="text-decoration: none; color: var(--text-light);">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#" style="text-decoration: none; color: var(--text-light);">Profile</a></li>
+                    <li class="breadcrumb-item active">Manage Profile</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Manage Profile</h1>
+        </div>
+
+        <!-- Success alertbox -->
+        <div class="alert alert-success" id="onSuccess" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+        <!-- Error alertbox -->
+        <div class="alert alert-danger" id="onError" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+        <div class="emp-info-container">
+            <div class="emp-info-header">
+                Employee Information
+            </div>
+            <div class="emp-info-content">
+                <div class="emp-info-left">
+                    <div class="emp-company-logo">
+                        <i class="bi bi-building"></i>
+                        <div class="emp-company-name">AV Management</div>
+                    </div>
+                    
+                    <div class="emp-id-container">
+                        <div class="emp-id-label">Employee ID</div>
+                        <div class="emp-id-value" id="employeeID"></div>
+                    </div>
+                    
+                    <div class="emp-info-section">
+                        <div class="emp-info-section-title">
+                            <i class="bi bi-info-circle"></i> Info
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">Address:</div>
+                            <div class="emp-info-value" id="address"></div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">Email:</div>
+                            <div class="emp-info-value" id="email"></div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">Alt Email:</div>
+                            <div class="emp-info-value">-</div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">Mobile:</div>
+                            <div class="emp-info-value" id="mobile"></div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">City:</div>
+                            <div class="emp-info-value" id="city"></div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">District:</div>
+                            <div class="emp-info-value" id="district"></div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">State:</div>
+                            <div class="emp-info-value" id="state"></div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">Pincode:</div>
+                            <div class="emp-info-value" id="pincode"></div>
+                        </div>
+                        
+                        <div class="emp-info-divider"></div>
+                        
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">Created on:</div>
+                            <div class="emp-info-value" id="created"></div>
+                        </div>
+                        <div class="emp-info-item">
+                            <div class="emp-info-label">Last Updated:</div>
+                            <div class="emp-info-value" id="updated"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="emp-info-right">
+                    <div class="emp-form-title">Information</div>
+                    <form>                    
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">Name</label>
+                                    <input type="text" id="nameInput" class="emp-form-control" required>
+                                    <div id="nameInputErr" class="form-error" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">Phone No.</label>
+                                    <input type="text" id="mobileInput" class="emp-form-control" required>
+                                    <div id="mobileInputErr" class="form-error" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">Alternate Email</label>
+                                    <input type="email" id="altEmailInput" class="emp-form-control" placeholder="Alternate Email">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">Joining Date</label>
+                                    <input type="date" id="joiningDate" class="emp-form-control">
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">Address</label>
+                                    <input type="text" id="addressInput" class="emp-form-control" required>
+                                    <div id="addressInputErr" class="form-error" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">City</label>
+                                    <input type="text" id="cityInput" class="emp-form-control" required>
+                                    <div id="cityInputErr" class="form-error" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">District</label>
+                                    <input type="text" id="districtInput" class="emp-form-control" required>
+                                    <div id="districtInputErr" class="form-error" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">State</label>
+                                    <input type="text" id="stateInput" class="emp-form-control" required>
+                                    <div id="stateInputErr" class="form-error" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">Pincode</label>
+                                    <input type="text" id="pincodeInput" class="emp-form-control" required>
+                                    <div id="pincodeInputErr" class="form-error" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="emp-form-group">
+                                    <label class="emp-form-label">Photo Upload</label>
+                                    <div class="emp-file-upload">
+                                        <input type="file" id="photo-upload">
+                                        <label for="photo-upload" class="emp-file-upload-label">
+                                            <i class="bi bi-upload"></i> Choose File
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="emp-btn-container">
+                            <button
+                                type="submit"
+                                class="emp-btn emp-btn-primary"
+                                id="updateProfile"
+                                onclick="update(event)"
+                            >
+                                Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
+    <script>
+        const successAlertElement = document.getElementById("onSuccess");
+        const errorAlertElement = document.getElementById("onError");
+        // Profile labels
+        const employeeIdLabel = document.getElementById("employeeID");
+        const addressLabel = document.getElementById("address");
+        const emailLabel = document.getElementById("email");
+        const mobileLabel = document.getElementById("mobile");
+        const cityLabel = document.getElementById("city");
+        const districtLabel = document.getElementById("district");
+        const stateLabel = document.getElementById("state");
+        const pincodeLabel = document.getElementById("pincode");
+        const updatedLabel = document.getElementById("updated");
+        // Profile form inputs
+        const nameInput = document.getElementById("nameInput");
+        const mobileInput = document.getElementById("mobileInput");
+        const addressInput = document.getElementById("addressInput");
+        const cityInput = document.getElementById("cityInput");
+        const districtInput = document.getElementById("districtInput");
+        const stateInput = document.getElementById("stateInput");
+        const pincodeInput = document.getElementById("pincodeInput");
+        
+        // Load data on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            loadProfileDetails();
+        });
+
+        // Load data on sidebar load
+        document.addEventListener("sidebarLoaded", () => {
+            const user_data = currentUserData();
+            document.getElementById("created").innerText = user_data.created_at;
+            updatedLabel.innerText = user_data.updated_at;
+            
+            document.getElementById("joiningDate").value = convertToDateFormat(user_data.created_at);
+        });
+        
+        // Fetch data from API
+        async function loadProfileDetails() {
+            try {
+                const result = await getProfileDetails();
+
+                console.log(result);
+                if (result == "API failed") {
+                    throw new Error(result);
+                }
+                
+                if (result.status !== 200 || !result.data) {
+                    if (result.status === 603) window.location.href = '/login.html';
+
+                    return;
+                }
+
+                renderDetails(result.data);
+            } catch (error) {
+                console.error("Error loading reports:", error);
+            }
+        }
+
+        // Render profile details
+        function renderDetails(data) {
+            employeeIdLabel.innerText = data.vendor_code;
+            
+            addressLabel.innerText = data.address;
+            emailLabel.innerText = data.email;
+            mobileLabel.innerText = data.phone_no;
+            cityLabel.innerText = data.city;
+            districtLabel.innerText = data.district;
+            stateLabel.innerText = data.state;
+            pincodeLabel.innerText = data.pincode;
+
+            // profile update form
+            nameInput.value = data.name;
+            mobileInput.value = data.phone_no;
+            addressInput.value = data.address;
+            cityInput.value = data.city;
+            districtInput.value = data.district;
+            stateInput.value = data.state;
+            pincodeInput.value = data.pincode;
+        }
+
+        // Update profile details
+        async function update(e) {
+            e.preventDefault();
+
+            successAlertElement.style.display = "none";
+            errorAlertElement.style.display = "none";
+
+            // List of required fields
+            const requiredFields = [
+                { id: "nameInput", err: "nameInputErr", msg: "Name is required" },
+                { id: "mobileInput", err: "mobileInputErr", msg: "Phone No. is required" },
+                { id: "addressInput", err: "addressInputErr", msg: "Address is required" },
+                { id: "cityInput", err: "cityInputErr", msg: "City is required" },
+                { id: "districtInput", err: "districtInputErr", msg: "District is required" },
+                { id: "stateInput", err: "stateInputErr", msg: "State is required" },
+                { id: "pincodeInput", err: "pincodeInputErr", msg: "Pincode is required" }
+            ];
+
+            // Validate all fields
+            if (!validateRequiredFields(requiredFields)) {
+                return;
+            }
+            
+            const name = nameInput.value.trim();
+            const phone_no = mobileInput.value.trim();
+            const address = addressInput.value.trim();
+            const city = cityInput.value.trim();
+            const pincode = pincodeInput.value.trim();
+            const district = districtInput.value.trim();
+            const state = stateInput.value.trim();
+
+            setLoading(true);
+
+            try {
+                const result = await updateProfile({
+                    "name": name,
+                    "phone_no": phone_no,
+                    "address": address,
+                    "city": city,
+                    "pincode": pincode,
+                    "district": district,
+                    "state": state,
+                });
+                
+                console.log(result);
+                if (result == "API failed") {
+                    // show Error alertbox
+                    showAlert(errorAlertElement, "Something went wrong. Please Try again.")
+
+                    setLoading(false);
+                    throw new Error(result);
+                }
+
+                const { status, message } = result;
+
+                if (status === 200) {
+                    addressLabel.innerText = address;
+                    mobileLabel.innerText = phone_no;
+                    cityLabel.innerText = city;
+                    districtLabel.innerText = district;
+                    stateLabel.innerText = state;
+                    pincodeLabel.innerText = pincode;
+                    
+                    // show Success alertbox
+                    showAlert(successAlertElement, message)
+                } else {
+                    if (result.status === 603) window.location.href = '/login.html';
+                    
+                    console.error('updateProfile Error:', message);
+                    // show Error alertbox
+                    showAlert(errorAlertElement, message)
+                }
+            } catch (error) {
+                console.error('Request Failed:', error);
+                // show Error alertbox
+                showAlert(errorAlertElement, "Something went wrong. Please Try again.")
+            }
+            
+            setLoading(false);
+        }
+
+        // show alert box
+        function showAlert(alertBox, message) {
+            alertBox.querySelector("p").innerText = message;
+            alertBox.style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // set loader on form submit
+        function setLoading(isLoading) {
+            const btn = document.getElementById('updateProfile');
+
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Updating...
+                `;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = 'Update';
+            }
+        }
+
+        // validation
+        function validateRequiredFields(fields) {
+            let isValid = true;
+
+            fields.forEach(f => {
+                const input = document.getElementById(f.id);
+                const error = document.getElementById(f.err);
+                
+                if (!input.value.trim()) {
+                    error.innerHTML = `<span>${f.msg}</span>`;
+                    error.style.display = "block";
+                    isValid = false;
+                } else {
+                    error.style.display = "none";
+                }
+            });
+
+            return isValid;
+        }
+
+        // convert to "yyyy-MM-dd" date format
+        function convertToDateFormat(dateStr) {
+            const date = new Date(dateStr);   
+            // Check if the date is valid
+            if (isNaN(date)) {
+                throw new Error('Invalid date format');
+            }
+
+            // Extract the year, month, and day
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            
+            // Return the date in "yyyy-MM-dd" format
+            return `${year}-${month}-${day}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI Calculator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Hidden checkbox for sidebar toggle -->
+    <input type="checkbox" id="sidebar-toggle">
+    
+    <!-- Sidebar Toggle Button -->
+    <label for="sidebar-toggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </label>
+
+    <!-- Sidebar -->
+    <aside class="sidebar loading" id="sidebar">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+       
+        <!-- EMI Calculator Section -->
+        <div class="page-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin" style="text-decoration: none; color: var(--text-light);">Home</a></li>
+                    
+                    <li class="breadcrumb-item active">EMI Calculator</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">EMI Calculator</h1>
+        </div>
+
+        <div class="emi-calculator-container">
+            <div class="emi-form-section">
+                <div class="emi-form-header">
+                    <i class="bi bi-calculator-fill"></i>
+                    <h3 class="emi-form-title">Calculate Your EMI</h3>
+                </div>
+
+                <div class="emi-form-body">
+                    <div class="emi-input-group">
+                        <label for="loanAmount" class="emi-input-label">Loan Amount</label>
+                        <div class="emi-input-wrapper">
+                            <span class="emi-input-prefix">₹</span>
+                            <input type="number" id="loanAmount" class="emi-input-field" value="30000" min="1000" step="1000">
+                        </div>
+                        <input type="range" id="loanAmountSlider" class="emi-slider" value="30000" min="1000" max="1000000" step="1000">
+                    </div>
+
+                    <div class="emi-input-group">
+                        <label for="interestRate" class="emi-input-label">Interest Rate (%)</label>
+                        <div class="emi-input-wrapper">
+                            <input type="number" id="interestRate" class="emi-input-field" value="8.5" min="0.1" max="30" step="0.1">
+                            <span class="emi-input-suffix">%</span>
+                        </div>
+                        <input type="range" id="interestRateSlider" class="emi-slider" value="8.5" min="0.1" max="30" step="0.1">
+                    </div>
+
+                    <div class="emi-input-group">
+                        <label for="loanTerm" class="emi-input-label">Loan Term (Months)</label>
+                        <div class="emi-input-wrapper">
+                            <input type="number" id="loanTerm" class="emi-input-field" value="240" min="1" max="360" step="1">
+                        </div>
+                        <input type="range" id="loanTermSlider" class="emi-slider" value="240" min="1" max="360" step="1">
+                    </div>
+
+                    <button type="button" class="emi-calculate-btn" id="calculateBtn">
+                        <i class="bi bi-calculator"></i>
+                        Calculate
+                    </button>
+                </div>
+            </div>
+
+            <div class="emi-results-section">
+                <div class="emi-results-header">
+                    <h3 class="emi-results-title">Your EMI Details</h3>
+                </div>
+
+                <div class="emi-results-body">
+                    <div class="emi-result-item">
+                        <div class="emi-result-label">Loan EMI</div>
+                        <div class="emi-result-value" id="emiValue">₹260</div>
+                    </div>
+
+                    <div class="emi-result-item">
+                        <div class="emi-result-label">Total Interest Payable</div>
+                        <div class="emi-result-value" id="interestValue">₹32,483</div>
+                    </div>
+
+                    <div class="emi-result-item">
+                        <div class="emi-result-label">Total Amount</div>
+                        <div class="emi-result-value" id="totalValue">₹62,483</div>
+                    </div>
+                </div>
+
+                <div class="emi-chart-container">
+                    <canvas id="emiChart" width="300" height="300"></canvas>
+                </div>
+
+                <div class="emi-chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color principal-color"></div>
+                        <div class="legend-label">Principal Loan Amount</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color interest-color"></div>
+                        <div class="legend-label">Total Interest</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
+    <script>
+    // EMI Calculator 
+    document.addEventListener('DOMContentLoaded', function() {
+    
+        const loanAmountInput = document.getElementById('loanAmount');
+        const loanAmountSlider = document.getElementById('loanAmountSlider');
+        const interestRateInput = document.getElementById('interestRate');
+        const interestRateSlider = document.getElementById('interestRateSlider');
+        const loanTermInput = document.getElementById('loanTerm');
+        const loanTermSlider = document.getElementById('loanTermSlider');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const emiValue = document.getElementById('emiValue');
+        const interestValue = document.getElementById('interestValue');
+        const totalValue = document.getElementById('totalValue');
+        const emiChart = document.getElementById('emiChart');
+        
+        
+        loanAmountInput.addEventListener('input', function() {
+            loanAmountSlider.value = this.value;
+            calculateEMI();
+        });
+        
+        loanAmountSlider.addEventListener('input', function() {
+            loanAmountInput.value = this.value;
+            calculateEMI();
+        });
+        
+        interestRateInput.addEventListener('input', function() {
+            interestRateSlider.value = this.value;
+            calculateEMI();
+        });
+        
+        interestRateSlider.addEventListener('input', function() {
+            interestRateInput.value = this.value;
+            calculateEMI();
+        });
+        
+        loanTermInput.addEventListener('input', function() {
+            loanTermSlider.value = this.value;
+            calculateEMI();
+        });
+        
+        loanTermSlider.addEventListener('input', function() {
+            loanTermInput.value = this.value;
+            calculateEMI();
+        });
+        
+        calculateBtn.addEventListener('click', calculateEMI);
+        
+    
+        function calculateEMI() {
+            const principal = parseFloat(loanAmountInput.value);
+
+            const interestClean = el.interestRate.value.replace(/['"]/g, "");
+            const rate = parseFloat(interestClean) / 100 / 12 || 0;
+
+            // const rate = parseFloat(interestRateInput.value) / 100 / 12; // Monthly interest rate
+            const time = parseFloat(loanTermInput.value);
+            
+            
+            const emi = principal * rate * Math.pow(1 + rate, time) / (Math.pow(1 + rate, time) - 1);
+            const totalAmount = emi * time;
+            const totalInterest = totalAmount - principal;
+            
+        
+            emiValue.textContent = '₹' + Math.round(emi).toLocaleString('en-IN');
+            interestValue.textContent = '₹' + Math.round(totalInterest).toLocaleString('en-IN');
+            totalValue.textContent = '₹' + Math.round(totalAmount).toLocaleString('en-IN');
+            
+        
+            drawPieChart(principal, totalInterest);
+        }
+        
+    
+        function drawPieChart(principal, interest) {
+            const canvas = emiChart;
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 100;
+            
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+        
+            const total = principal + interest;
+            const principalAngle = (principal / total) * 2 * Math.PI;
+            const interestAngle = (interest / total) * 2 * Math.PI;
+            
+        
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, -Math.PI/2, -Math.PI/2 + principalAngle);
+            ctx.lineTo(centerX, centerY);
+            ctx.fillStyle = '#1565C0';
+            ctx.fill();
+            
+        
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, -Math.PI/2 + principalAngle, -Math.PI/2 + principalAngle + interestAngle);
+            ctx.lineTo(centerX, centerY);
+            ctx.fillStyle = '#FF6B6B';
+            ctx.fill();
+            
+        
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#e0e6ed';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        
+        calculateEMI();
+    });
+    </script>
+</body>
+</html>

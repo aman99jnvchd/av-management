@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Hidden checkbox for sidebar toggle -->
+    <input type="checkbox" id="sidebar-toggle">
+    
+    <!-- Sidebar Toggle Button -->
+    <label for="sidebar-toggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </label>
+
+    <!-- Sidebar -->
+    <aside class="sidebar loading" id="sidebar">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin" style="text-decoration: none; color: var(--text-light);">Home</a></li>
+                    <li class="breadcrumb-item active">Settings</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Settings</h1>
+        </div>
+
+        <!-- Success alertbox -->
+        <div class="alert alert-success" id="onSuccess" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+        <!-- Error alertbox -->
+        <div class="alert alert-danger" id="onError" style="display: none;">
+            <p style="margin: 0;"></p>
+        </div>
+
+       <!-- Settings Section -->
+        <div class="settings-container">
+            <!-- Password Settings Card -->
+            <div class="settings-card">
+                <div class="settings-header">
+                    <i class="bi bi-lock-fill"></i>
+                    <h3 class="settings-title">Settings</h3>
+                </div>
+                <div class="settings-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password" required>
+                            <div id="currentPasswordErr" class="form-error" style="display: none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" id="newPassword" class="form-control" placeholder="Enter new password" required>
+                            <div id="newPasswordErr" class="form-error" style="display: none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password" required>
+                            <div id="confirmPasswordErr" class="form-error" style="display: none;"></div>
+                        </div>
+                        <button
+                            type="submit"
+                            class="btn-submit"
+                            id="chngePsswrd"
+                            onclick="sendRequest(event)"
+                        >
+                            <i class="bi bi-check-circle"></i>
+                            Submit
+                        </button>
+                    </form>
+                </div>
+                <div class="settings-footer">
+                    <div>Password requirements: At least 8 characters with uppercase, lowercase, numbers and special characters</div>
+                    <a href="#">Forgot password?</a>
+                </div>
+            </div>
+
+            <!-- Authentication Settings Card -->
+            <div class="settings-card">
+                <div class="settings-header">
+                    <i class="bi bi-shield-check"></i>
+                    <h3 class="settings-title">Authentication Settings</h3>
+                </div>
+                <div class="settings-body">
+                    <div class="auth-info">
+                        <i class="bi bi-envelope-fill"></i>
+                        <div class="auth-text">
+                            Verification code will be sent to: <span class="auth-email" id="authEmail"></span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-enable">
+                        <i class="bi bi-toggle-off"></i>
+                        Enable
+                    </button>
+                </div>
+                <div class="settings-footer">
+                    <div>Two-factor authentication adds an extra layer of security to your account</div>
+                    <a href="#">Learn more</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
+    <script>
+        const currentPassword = document.getElementById('currentPassword');
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        
+        const newPasswordErr = document.getElementById('newPasswordErr');
+        const confirmPasswordErr = document.getElementById('confirmPasswordErr');
+
+        const successAlertElement = document.getElementById("onSuccess");
+        const errorAlertElement = document.getElementById("onError");
+        const user_data = currentUserData();
+        // console.log(user_data);
+
+        // Load data on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("authEmail").innerText = user_data.email;
+        });
+
+        async function sendRequest(e) {
+            e.preventDefault();
+
+            successAlertElement.style.display = "none";
+            errorAlertElement.style.display = "none";
+
+            // List of required fields
+            const requiredFields = [
+                { id: "currentPassword", err: "currentPasswordErr", msg: "Current Password is required" },
+                { id: "newPassword", err: "newPasswordErr", msg: "New Password is required" },
+                { id: "confirmPassword", err: "confirmPasswordErr", msg: "Confirm Password is required" },
+            ];
+
+            // Validate all fields
+            if (!validateRequiredFields(requiredFields)) {
+                return;
+            }
+
+            const current_password = currentPassword.value.trim();
+            const password = newPassword.value.trim();
+            const confirm_password = confirmPassword.value.trim();
+
+            newPasswordErr.style.display = "none";
+            confirmPasswordErr.style.display = "none";
+
+            // new password validation
+            if (!isValidPassword(password)) {
+                newPasswordErr.innerHTML = `<span>
+                    Password must be at least 8 characters, with uppercase, lowercase, a number, and a special character.
+                </span>`;
+                newPasswordErr.style.display = "block";
+                return;
+            }
+
+            // passwords match validation
+            if (password !== confirm_password) {
+                confirmPasswordErr.innerHTML = `<span>
+                    Passwords do not match!
+                </span>`;
+                confirmPasswordErr.style.display = "block";
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const result = await changePassword({
+                    "current_password": current_password,
+                    "password": password,
+                    "confirm_password": confirm_password,
+                });
+
+                console.log(result);
+                if (result == "API failed") {
+                    // show Error alertbox
+                    showAlert(errorAlertElement, "Something went wrong. Please Try again.")
+
+                    setLoading(false);
+                    throw new Error(result);
+                }
+
+                const { status, message } = result;
+
+                if (status === 200) {
+                    // show Success alertbox
+                    showAlert(successAlertElement, message)
+                } else {
+                    if (result.status === 603) window.location.href = '/login.html';
+                    
+                    console.error('changePassword Error:', message);
+
+                    // show Error alertbox
+                    showAlert(errorAlertElement, message)
+                }
+            } catch (error) {
+                console.error('Change password Failed:', error);
+
+                // show Error alertbox
+                showAlert(errorAlertElement, "Something went wrong. Try again.")
+            }
+            
+            clearForm();
+            setLoading(false);
+        }
+
+        // set loader on form submit
+        function setLoading(isLoading) {
+            const btn = document.getElementById('chngePsswrd');
+
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Submitting...
+                `;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <i class="bi bi-check-circle"></i>
+                    Submit
+                `;
+            }
+        }
+
+        // clear form
+        function clearForm() {
+            currentPassword.value = "";
+            newPassword.value = "";
+            confirmPassword.value = "";
+        }
+
+        // show alert box
+        function showAlert(alertBox, message) {
+            alertBox.querySelector("p").innerText = message;
+            alertBox.style.display = "block";
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // validation
+        function validateRequiredFields(fields) {
+            let isValid = true;
+
+            fields.forEach(f => {
+                const input = document.getElementById(f.id);
+                const error = document.getElementById(f.err);
+                
+                if (!input.value.trim()) {
+                    error.innerHTML = `<span>${f.msg}</span>`;
+                    error.style.display = "block";
+                    isValid = false;
+                } else {
+                    error.style.display = "none";
+                }
+            });
+
+            return isValid;
+        }
+
+        // validate password
+        function isValidPassword(password) {
+            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
+            return regex.test(password);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Transactions</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <!-- Hidden checkbox for sidebar toggle -->
+    <input type="checkbox" id="sidebar-toggle">
+    
+    <!-- Sidebar Toggle Button -->
+    <label for="sidebar-toggle" class="sidebar-toggle-btn">
+        <i class="bi bi-list"></i>
+    </label>
+
+    <!-- Sidebar -->
+    <aside class="sidebar loading" id="sidebar">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- All Transactions Section -->
+        <div class="page-header">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin" style="text-decoration: none; color: var(--text-light);">Home</a></li>
+                    <li class="breadcrumb-item">CIBIL</li>
+                    <li class="breadcrumb-item active">All Transactions</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">All Transactions</h1>
+        </div>
+
+        <div class="transactions-container">
+            <div class="transactions-filters">
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label for="fromDate" class="form-label">From</label>
+                        <input type="date" id="fromDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="toDate" class="form-label">To</label>
+                        <input type="date" id="toDate" class="form-control">
+                    </div>
+                    <div class="filter-actions">
+                        <button type="button" class="btn btn-primary filter">
+                            <i class="bi bi-search"></i>
+                            Search
+                        </button>
+                        <button type="button" class="btn btn-secondary reset">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+                <div class="display-options">
+                    <div class="entries-info">
+                        <span>Show</span>
+                        <select id="perPage" class="form-select per-page">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>entries</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transactions-table-container">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Amount</th>
+                            <th>Transaction Type</th>
+                            <th>Remarks</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="no-record-row">
+                            <td colspan="6">Loading records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <div class="pagination-info">
+                </div>
+                <div class="pagination-controls">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
+    <script>
+        // CONFIG
+        let perPage = 10;
+        const user_data = currentUserData();
+        // console.log(user_data);
+
+        // Filter state
+        let filters = { start_date: "", end_date: "" };
+
+        // Load data on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            bindFilterButtons();
+            loadReportList(1, perPage);
+        });
+
+        // Fetch data from API
+        async function loadReportList(page = 1, perPage) {
+            const tbody = document.querySelector(".transactions-table tbody");
+            tbody.innerHTML = `
+                <tr class="no-record-row">
+                    <td colspan="6">Loading records...</td>
+                </tr>
+            `;
+
+            try {
+                const result = await getAllTransactions({
+                    "page": page,
+                    "start_date": filters.start_date,
+                    "end_date": filters.end_date,
+                    "per_page": perPage,
+                });
+
+                console.log(result);
+                if (result == "API failed") {
+                    tbody.innerHTML = `
+                        <tr class="no-record-row">
+                            <td colspan="9">Something went wrong. Failed to load records.</td>
+                        </tr>
+                    `;
+                    throw new Error(result);
+                }
+
+                if (result.status !== 200 || !result.data) {
+                    if (result.status === 603) window.location.href = '/login.html';
+                    
+                    tbody.innerHTML = `
+                        <tr class="no-record-row">
+                            <td colspan="9">There are no records to display</td>
+                        </tr>
+                    `;
+                    updatePagination(0, 1);
+                    return;
+                }
+
+                renderTable(result.data.transactions, result.data.total_records, page);
+            } catch (error) {
+                console.error("Error loading reports:", error);
+                tbody.innerHTML = `
+                    <tr class="no-record-row">
+                        <td colspan="9">Something went wrong. Failed to load records.</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Render table with data
+        function renderTable(data, totalRecords, currentPage) {
+            const tbody = document.querySelector(".transactions-table tbody");
+
+            if (!data.length) {
+                tbody.innerHTML = `
+                    <tr class="no-record-row">
+                        <td colspan="9">There are no records to display</td>
+                    </tr>
+                `;
+                updatePagination(totalRecords, currentPage);
+                return;
+            }
+
+            tbody.innerHTML = data.map((item, index) => {
+                return `
+                    <tr>
+                        <td>${((currentPage - 1) * perPage) + (index + 1)}</td>
+                        <td>${user_data.name || "-"}</td>
+
+                        ${
+                            item.transaction_type == 'credit'
+                            ? `<td class="amount positive">+₹${formatNumber(item.amount)}</td>`
+                            : `<td class="amount negative">-₹${formatNumber(item.amount)}</td>`
+                        }
+                        
+                        <td>
+                            <span class="transaction-type ${item.transaction_type.toLowerCase()}">${item.transaction_type}</span>
+                        </td>
+                        <td>${item.remarks || "-"}</td>
+                        <td>${item.created_at || "-"}</td>
+                    </tr>
+                `;
+            }).join("");
+
+            updatePagination(totalRecords, currentPage);
+        }
+
+        // Filter buttons
+        function bindFilterButtons() {
+            // Filter button
+            document.querySelector(".filter-actions .filter").addEventListener("click", () => {
+                filters.start_date = document.getElementById("fromDate").value;
+                filters.end_date = document.getElementById("toDate").value;
+
+                loadReportList(1, perPage);
+            });
+
+            // Reset button
+            document.querySelector(".filter-actions .reset").addEventListener("click", () => {
+                filters = { start_date: "", end_date: "" };
+                perPage = 10
+
+                document.getElementById("fromDate").value = "";
+                document.getElementById("toDate").value = "";
+                document.getElementById("perPage").value = perPage;
+
+                loadReportList(1, perPage);
+            });
+        }
+
+        // Show per page
+        document.querySelector(".entries-info .per-page").addEventListener("change", () => {
+            perPage = document.getElementById("perPage").value;
+            loadReportList(1, perPage);
+        });
+
+        // format number
+        function formatNumber(input) {
+            let number = parseFloat(input, 10);
+            // let number = parseInt(input, 10);
+
+            return number.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+    </script>
+</body>
+</html>
