@@ -197,20 +197,22 @@
 
                 const { status, message } = result;
 
+                // force logout, if session expired
+                if (status === 603) {
+                    localStorage.setItem('sessionExpired', 'Your session has expired. Please log in again.');
+                    logoutUser();
+                }
+
                 if (status === 200) {
                     // show Success alertbox
                     showAlert(successAlertElement, message)
                 } else {
-                    if (result.status === 603) window.location.href = '/login.html';
-                    
                     console.error('changePassword Error:', message);
-
                     // show Error alertbox
                     showAlert(errorAlertElement, message)
                 }
             } catch (error) {
                 console.error('Change password Failed:', error);
-
                 // show Error alertbox
                 showAlert(errorAlertElement, "Something went wrong. Try again.")
             }

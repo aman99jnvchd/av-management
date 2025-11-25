@@ -147,10 +147,13 @@
                     `;
                     throw new Error(result);
                 }
+                // force logout, if session expired
+                if (result.status === 603) {
+                    localStorage.setItem('sessionExpired', 'Your session has expired. Please log in again.');
+                    logoutUser();
+                }
 
                 if (result.status !== 200 || !result.data) {
-                    if (result.status === 603) window.location.href = '/login.html';
-                    
                     tbody.innerHTML = `
                         <tr class="no-record-row">
                             <td colspan="9">There are no records to display</td>
@@ -216,7 +219,9 @@
                 filters.start_date = document.getElementById("fromDate").value;
                 filters.end_date = document.getElementById("toDate").value;
 
-                loadReportList(1, perPage);
+                if (filters.start_date || filters.end_date) {
+                    loadReportList(1, perPage);
+                }
             });
 
             // Reset button

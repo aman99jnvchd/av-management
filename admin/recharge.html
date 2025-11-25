@@ -46,21 +46,29 @@
             <p style="margin: 0;"></p>
         </div>
 
-       <!-- Settings Section -->
-        <div class="settings-container">
-            <!-- Password Settings Card -->
-            <div class="settings-card">
-                <div class="settings-header">
-                    <i class="bi bi-cash"></i>
-                    <h3 class="settings-title">Recharge</h3>
-                </div>
-                <div class="settings-body">
-                    <form>
+        <!-- Recharge Section -->
+        <div class="get-data-container">
+            <div class="form-header">
+                <i class="bi bi-cash"></i>
+                <h3 class="settings-title">Recharge</h3>
+            </div>
+            
+            <form>
+                <div class="form-body">
+                    <div class="form-section">
                         <div class="form-group">
-                            <label for="amount" class="form-label">Amount</label>
+                            <label for="amount" class="form-label">Amount <span class="required">*</span></label>
                             <input type="number" name="amount" id="amount" required min="10" class="form-control" required>
                             <div id="amountErr" class="form-error" style="display: none;"></div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="form-info">
+                        Fields marked with <span class="required">*</span> are required. Need help? Check our <a href="#">Data Retrieval Guide</a>
+                    </div>
+                    <div class="action-buttons">
                         <button
                             type="submit"
                             class="btn-submit"
@@ -70,9 +78,9 @@
                             <i class="bi bi-check-circle"></i>
                             Submit
                         </button>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </main>
 
@@ -126,12 +134,20 @@
 
                 const { status, message } = result;
 
+                // force logout, if session expired
+                if (status === 603) {
+                    localStorage.setItem('sessionExpired', 'Your session has expired. Please log in again.');
+                    logoutUser();
+                }
+
                 if (status === 200) {
+                    // if (data.isPhonepeRedirect) {
+                        
+                    // }
+
                     // show Success alertbox
                     showAlert(successAlertElement, message)
                 } else {
-                    if (result.status === 603) window.location.href = '/login.html';
-                    
                     console.error('Recharge Error:', message);
                     // show Error alertbox
                     showAlert(errorAlertElement, message);

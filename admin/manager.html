@@ -267,10 +267,15 @@
                 if (result == "API failed") {
                     throw new Error(result);
                 }
-                
-                if (result.status !== 200 || !result.data) {
-                    if (result.status === 603) window.location.href = '/login.html';
 
+                // force logout, if session expired
+                if (result.status === 603) {
+                    localStorage.setItem('sessionExpired', 'Your session has expired. Please log in again.');
+                    logoutUser();
+                }
+
+                if (result.status !== 200 || !result.data) {
+                    console.log('result >', result);
                     return;
                 }
 
@@ -368,7 +373,7 @@
                     // show Success alertbox
                     showAlert(successAlertElement, message)
                 } else {
-                    if (result.status === 603) window.location.href = '/login.html';
+                    if (result.status === 603) logoutUser();
                     
                     console.error('updateProfile Error:', message);
                     // show Error alertbox

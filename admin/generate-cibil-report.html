@@ -184,6 +184,12 @@
                 
                 const { status, data, message } = result;
 
+                // force logout, if session expired
+                if (status === 603) {
+                    localStorage.setItem('sessionExpired', 'Your session has expired. Please log in again.');
+                    logoutUser();
+                }
+
                 if (status === 200 && data) {
                     var link = successAlertElement.querySelector("a");
                     link.href = data.report_url;
@@ -191,8 +197,6 @@
                     // show Error alertbox
                     showAlert(successAlertElement, "Report Generated Successfully");
                 } else {
-                    if (result.status === 603) window.location.href = '/login.html';
-
                     console.error('GenReport Error:', result);
                     // show Error alertbox
                     showAlert(errorAlertElement, message);

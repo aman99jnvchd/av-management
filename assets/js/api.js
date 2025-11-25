@@ -50,7 +50,10 @@ async function logoutUser() {
         console.log('logoutUser >', result);
 
         if (result.status === 200 || result.status === 603) {
-            localStorage.clear();
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('userData');
+            
+            // localStorage.clear();
             // sessionStorage.clear();
             window.location.href = "/login.html";
         } else {

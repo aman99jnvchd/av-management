@@ -46,36 +46,44 @@
             <p style="margin: 0;"></p>
         </div>
 
-       <!-- Settings Section -->
-        <div class="settings-container">
-            <!-- Password Settings Card -->
-            <div class="settings-card">
-                <div class="settings-header">
-                    <i class="bi bi-headphones"></i>
-                    <h3 class="settings-title">Contact Support</h3>
-                </div>
-                <div class="settings-body">
-                    <div class="contact-info mb-4">
-                        <p>
-                            <strong><label for="subject" class="form-label">Phone:</label></strong>
-                            <a href="tel:+918146571023">+91-8146571023</a>
-                        </p>
-                        <p>
-                            <strong><label for="subject" class="form-label">Email:</label></strong>
-                            <a href="mailto:info@avmanagement.in">Info@avmanagement.in</a>
-                        </p>
-                    </div>
-                    <form>
+        <!-- Support Section -->
+        <div class="get-data-container">
+            <div class="form-header">
+                <i class="bi bi-headphones"></i>
+                <h3 class="settings-title">Contact Support</h3>
+            </div>
+            
+            <form>
+                <div class="form-body">
+                    <div class="form-section">
+                        <div class="contact-info">
+                            <p>
+                                <strong><label class="form-label">Phone:</label></strong>
+                                <a href="tel:+918146571023">+91-8146571023</a>
+                            </p>
+                            <p>
+                                <strong><label class="form-label">Email:</label></strong>
+                                <a href="mailto:info@avmanagement.in">Info@avmanagement.in</a>
+                            </p>
+                        </div>
                         <div class="form-group">
-                            <label for="subject" class="form-label">Subject</label>
+                            <label for="subject" class="form-label">Subject <span class="required">*</span></label>
                             <input type="text" name="subject" id="subject" class="form-control" required>
                             <div id="subjectErr" class="form-error" style="display: none;"></div>
                         </div>
                         <div class="form-group">
-                            <label for="message" class="form-label">Message</label>
+                            <label for="message" class="form-label">Message <span class="required">*</span></label>
                             <textarea name="message" id="message" class="form-control" rows="4" required></textarea>
                             <div id="messageErr" class="form-error" style="display: none;"></div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="form-info">
+                        Fields marked with <span class="required">*</span> are required. Need help? Check our <a href="#">Data Retrieval Guide</a>
+                    </div>
+                    <div class="action-buttons">
                         <button
                             type="submit"
                             class="btn-submit"
@@ -85,9 +93,9 @@
                             <i class="bi bi-check-circle"></i>
                             Submit
                         </button>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </main>
 
@@ -105,6 +113,7 @@
 
             successAlertElement.style.display = "none";
             errorAlertElement.style.display = "none";
+            messageErr.style.display = "none";
 
             // List of required fields
             const requiredFields = [
@@ -119,6 +128,13 @@
 
             const subjectVal = subject.value.trim();
             const messageVal = message.value.trim();
+
+            // Message must have at least 10 characters
+            if (!validateMssg(messageVal)) {
+                messageErr.innerHTML = '<span>Message must be at least 10 characters</span>';
+                messageErr.style.display = "block";
+                return;
+            }
 
             setLoading(true);
 
@@ -139,12 +155,16 @@
 
                 const { status, message } = result;
 
+                // force logout, if session expired
+                if (status === 603) {
+                    localStorage.setItem('sessionExpired', 'Your session has expired. Please log in again.');
+                    logoutUser();
+                }
+
                 if (status === 200) {
                     // show Success alertbox
                     showAlert(successAlertElement, message)
                 } else {
-                    if (result.status === 603) window.location.href = '/login.html';
-                    
                     console.error('contactSupport Error:', message);
                     // show Error alertbox
                     showAlert(errorAlertElement, message)
@@ -209,6 +229,12 @@
             });
 
             return isValid;
+        }
+
+        // Message validation
+        function validateMssg(mssg) {
+            mssg = mssg.trim();
+            return mssg.length >= 10;
         }
     </script>
 </body>
