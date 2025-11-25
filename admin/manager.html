@@ -52,7 +52,8 @@
             <div class="emp-info-header">
                 Employee Information
             </div>
-            <div class="emp-info-content">
+            <div class="emp-info-content container">
+                <div class="loader"></div>
                 <div class="emp-info-left">
                     <div class="emp-company-logo">
                         <i class="bi bi-building"></i>
@@ -280,8 +281,16 @@
                 }
 
                 renderDetails(result.data);
+                removeLoader();
             } catch (error) {
                 console.error("Error loading reports:", error);
+            }
+        }
+        
+        function removeLoader() {
+            const loader = document.querySelector('.loader');
+            if (loader) {
+                loader.remove();
             }
         }
 
