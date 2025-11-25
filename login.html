@@ -101,21 +101,13 @@
 
     <script src="assets/js/api.js"></script>
     <script>
-        // Check if 'accessToken' exists in localStorage and 'userData' exists in sessionStorage
-        const accessToken = localStorage.getItem('accessToken');
-        const sessionExpired = localStorage.getItem('sessionExpired');
-        // const userData = sessionStorage.getItem('userData');
-        const userData = localStorage.getItem('userData');
-
-        // If both exists, redirect to dashboard page
-        if (accessToken && userData) {
-            window.location.href = '/admin';
-        }
-
+        redirectIfLoggedIn();
+        
         const formError = document.getElementById("formError");
         const emailElement = document.getElementById("email");
         const passwordElement = document.getElementById("password");
-
+        
+        const sessionExpired = localStorage.getItem('sessionExpired');
         // Load session expired message on page load
         document.addEventListener("DOMContentLoaded", () => {
             formError.style.display = 'none';

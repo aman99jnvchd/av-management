@@ -66,6 +66,17 @@ async function logoutUser() {
     }
 }
 
+// Redirect if already logged In
+async function redirectIfLoggedIn() {
+    const accessToken = localStorage.getItem('accessToken');
+    const userData = localStorage.getItem('userData');
+    // const userData = sessionStorage.getItem('userData');
+
+    if (accessToken && userData) {
+        window.location.href = '/admin';
+    }
+}
+
 // dashboard
 function getDashboardData() {
     return apiRequest("dashboard/", "POST");
